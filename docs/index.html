@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Índice — Fresadora STM32</title>
+<style>
+:root {
+  --bg: #f8f9fa; --surface: #ffffff; --border: #dee2e6;
+  --text: #212529; --muted: #6c757d;
+  --hal: #0d6efd; --control: #198754; --app: #dc3545; --config: #6c757d;
+  --warn-bg: #fff3cd; --warn-border: #ffc107; --warn-text: #664d03;
+  --note-bg: #cff4fc; --note-border: #0dcaf0; --note-text: #055160;
+  --code-bg: #f1f3f5;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+       font-size: 15px; background: var(--bg); color: var(--text); }
+a { color: inherit; text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* Layout */
+.sidebar { position: fixed; top: 0; left: 0; width: 260px; height: 100vh;
+           background: var(--surface); border-right: 1px solid var(--border);
+           overflow-y: auto; padding: 0 0 24px; }
+.main { margin-left: 260px; padding: 40px 48px; max-width: 960px; }
+
+/* Sidebar */
+.sidebar-logo { padding: 20px 20px 16px; border-bottom: 1px solid var(--border);
+                font-weight: 700; font-size: 14px; line-height: 1.4; color: var(--text); }
+.sidebar-logo span { display: block; font-size: 11px; font-weight: 400; color: var(--muted); }
+.sidebar-section { padding: 14px 20px 4px; font-size: 11px; font-weight: 700;
+                   text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.sidebar-item { display: flex; align-items: center; gap: 10px;
+                padding: 7px 20px; font-size: 13px; color: var(--text);
+                transition: background .12s; }
+.sidebar-item:hover { background: var(--bg); }
+.sidebar-item.active { background: #e8f0fe; color: var(--hal); font-weight: 600; }
+.sidebar-badge { font-size: 10px; font-weight: 700; padding: 2px 7px;
+                 border-radius: 99px; color: #fff; white-space: nowrap; }
+
+/* Page header */
+.page-header { margin-bottom: 36px; padding-bottom: 20px;
+               border-bottom: 1px solid var(--border); }
+.page-header h1 { font-size: 26px; font-weight: 700; margin-bottom: 6px; }
+.page-header .filename { font-family: 'SFMono-Regular', Consolas, monospace;
+                          font-size: 13px; color: var(--muted); margin-bottom: 14px; }
+.page-header .brief { font-size: 16px; line-height: 1.6; color: #444; }
+
+/* Sections */
+h2 { font-size: 18px; font-weight: 700; margin: 36px 0 16px;
+     padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+h3 { font-size: 15px; font-weight: 700; margin: 28px 0 10px; color: #333; }
+
+/* Detail text */
+.detail { line-height: 1.7; color: #444; margin-bottom: 20px; }
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; margin-bottom: 20px;
+        font-size: 13.5px; }
+th { background: var(--bg); text-align: left; padding: 9px 12px;
+     font-weight: 600; border: 1px solid var(--border); }
+td { padding: 8px 12px; border: 1px solid var(--border); vertical-align: top; }
+tr:nth-child(even) td { background: #fafafa; }
+code { font-family: 'SFMono-Regular', Consolas, monospace; font-size: 12.5px;
+       background: var(--code-bg); padding: 1px 5px; border-radius: 3px; }
+
+/* Function cards */
+.fn-card { border: 1px solid var(--border); border-radius: 8px;
+           margin-bottom: 24px; overflow: hidden; }
+.fn-header { padding: 14px 18px; background: var(--bg);
+             border-bottom: 1px solid var(--border); }
+.fn-sig { font-family: 'SFMono-Regular', Consolas, monospace;
+          font-size: 13.5px; font-weight: 600; color: #333; }
+.fn-brief { font-size: 13px; color: var(--muted); margin-top: 4px; }
+.fn-body { padding: 16px 18px; }
+.fn-body p { line-height: 1.7; color: #444; margin-bottom: 12px; }
+
+/* Variable cards */
+.var-card { display: flex; gap: 12px; align-items: flex-start;
+            padding: 10px 14px; border: 1px solid var(--border);
+            border-radius: 6px; margin-bottom: 10px; }
+.var-type { font-family: monospace; font-size: 12px; color: var(--muted);
+            white-space: nowrap; padding-top: 1px; }
+.var-name { font-family: monospace; font-size: 13px; font-weight: 700; }
+.var-desc { font-size: 13px; color: #555; }
+
+/* Alerts */
+.alert { padding: 12px 16px; border-radius: 6px; margin-bottom: 14px;
+         font-size: 13.5px; line-height: 1.6; }
+.alert-warn { background: var(--warn-bg); border-left: 4px solid var(--warn-border);
+              color: var(--warn-text); }
+.alert-note { background: var(--note-bg); border-left: 4px solid var(--note-border);
+              color: var(--note-text); }
+.alert b { font-weight: 700; }
+
+/* Index cards */
+.index-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+              margin-bottom: 32px; }
+.index-card { border: 1px solid var(--border); border-radius: 8px;
+              padding: 18px 20px; background: var(--surface);
+              transition: box-shadow .15s; }
+.index-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,.08); }
+.index-card h3 { font-size: 14px; margin: 0 0 6px; }
+.index-card p  { font-size: 13px; color: #555; line-height: 1.5; }
+.index-card .layer-tag { font-size: 11px; font-weight: 700; padding: 2px 8px;
+                          border-radius: 4px; color: #fff; display: inline-block;
+                          margin-bottom: 10px; }
+
+@media (max-width: 900px) {
+  .sidebar { display: none; }
+  .main { margin-left: 0; padding: 24px 20px; }
+  .index-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<nav class="sidebar">
+<div class="sidebar-logo">Fresadora STM32<span>Documentação da API</span></div>
+<div class="sidebar-section">Visão Geral</div>
+<a class="sidebar-item active" href="index.html"><span style="flex:1">Índice</span></a>
+<div class="sidebar-section">Configuração</div>
+<a class="sidebar-item" href="config.html"><span style="flex:1">config.h</span><span class="sidebar-badge" style="background:#6c757d">Config</span></a>
+<div class="sidebar-section">HAL — Hardware</div>
+<a class="sidebar-item" href="pwm.html"><span style="flex:1">pwm.h</span><span class="sidebar-badge" style="background:#0d6efd">HAL</span></a>
+<a class="sidebar-item" href="rpm.html"><span style="flex:1">rpm.h</span><span class="sidebar-badge" style="background:#0d6efd">HAL</span></a>
+<a class="sidebar-item" href="corrente.html"><span style="flex:1">corrente.h</span><span class="sidebar-badge" style="background:#0d6efd">HAL</span></a>
+<a class="sidebar-item" href="controle.html"><span style="flex:1">controle.h</span><span class="sidebar-badge" style="background:#0d6efd">HAL</span></a>
+<div class="sidebar-section">Control — Algoritmos</div>
+<a class="sidebar-item" href="pids.html"><span style="flex:1">pids.h</span><span class="sidebar-badge" style="background:#198754">Control</span></a>
+<a class="sidebar-item" href="autotune.html"><span style="flex:1">autotune.h</span><span class="sidebar-badge" style="background:#198754">Control</span></a>
+<div class="sidebar-section">App — Aplicação</div>
+<a class="sidebar-item" href="maquina.html"><span style="flex:1">maquina.h</span><span class="sidebar-badge" style="background:#dc3545">App</span></a>
+</nav>
+<main class="main">
+<div class="page-header">
+<h1>Fresadora STM32 — Documentação da API</h1>
+<div class="brief">Sistema de controle de motor universal 1800W em DC pulsado. STM32F103C8T6 (Blue Pill) com PlatformIO.</div>
+</div>
+<h2>Arquitetura</h2>
+
+<table>
+<thead><tr><th>Camada</th><th>Arquivos</th><th>Responsabilidade</th></tr></thead>
+<tbody>
+<tr><td><span class="sidebar-badge" style="background:#6c757d">Config</span></td>
+    <td><a href="config.html"><code>config.h</code></a></td>
+    <td>Constantes, pinos, limites e ganhos PID centralizados</td></tr>
+<tr><td><span class="sidebar-badge" style="background:#0d6efd">HAL</span></td>
+    <td>
+      <a href="pwm.html"><code>pwm</code></a> ·
+      <a href="rpm.html"><code>rpm</code></a> ·
+      <a href="corrente.html"><code>corrente</code></a> ·
+      <a href="controle.html"><code>controle</code></a>
+    </td>
+    <td>Acesso direto ao hardware (registradores, timers, ADC). Única camada que muda ao portar para outro STM32.</td></tr>
+<tr><td><span class="sidebar-badge" style="background:#198754">Control</span></td>
+    <td>
+      <a href="pids.html"><code>pids</code></a> ·
+      <a href="autotune.html"><code>autotune</code></a>
+    </td>
+    <td>Algoritmos de controle puros. Não conhece pinos nem registradores.</td></tr>
+<tr><td><span class="sidebar-badge" style="background:#dc3545">App</span></td>
+    <td><a href="maquina.html"><code>maquina</code></a></td>
+    <td>Lógica de aplicação de alto nível. Orquestra HAL e Control pelo nome.</td></tr>
+</tbody>
+</table>
+
+<h2>Fluxo de Execução</h2>
+
+<table>
+<thead><tr><th>Contexto</th><th>Frequência</th><th>O que executa</th></tr></thead>
+<tbody>
+<tr><td><code>TIM3 ISR</code></td><td><b>2kHz</b> — prioridade 0</td>
+    <td>lerCorrente() → calcularRPM() → processarCascata() → verificações de segurança</td></tr>
+<tr><td><code>Hall ISR</code></td><td>Por pulso — prioridade 1</td>
+    <td>Registra período entre pulsos do sensor Hall</td></tr>
+<tr><td><code>loop()</code></td><td>~95% do CPU livre</td>
+    <td>executarSoftStart() · display · botões · serial</td></tr>
+</tbody>
+</table>
+
+<h2>Arquivos</h2>
+<div class="index-grid">
+<a class="index-card" href="config.html">
+  <span class="layer-tag" style="background:#6c757d">Configuração</span>
+  <h3>config.h</h3>
+  <p>Configuração central do projeto — constantes, pinos e limites.</p>
+  <p style="margin-top:8px;font-size:12px;color:#888">Constantes e defines</p>
+</a>
+<a class="index-card" href="pwm.html">
+  <span class="layer-tag" style="background:#0d6efd">HAL</span>
+  <h3>pwm.h</h3>
+  <p>Saída PWM de potência via TIM1 CH1 (PA8) a 16kHz.</p>
+  <p style="margin-top:8px;font-size:12px;color:#888">2 funçãoões</p>
+</a>
+<a class="index-card" href="rpm.html">
+  <span class="layer-tag" style="background:#0d6efd">HAL</span>
+  <h3>rpm.h</h3>
+  <p>Medição de RPM por período entre pulsos do sensor Hall (PA0).</p>
+  <p style="margin-top:8px;font-size:12px;color:#888">2 funçãoões</p>
+</a>
+<a class="index-card" href="corrente.html">
+  <span class="layer-tag" style="background:#0d6efd">HAL</span>
+  <h3>corrente.h</h3>
+  <p>Leitura de corrente via sensor ACS712-30A em PA1.</p>
+  <p style="margin-top:8px;font-size:12px;color:#888">1 função</p>
+</a>
+<a class="index-card" href="controle.html">
+  <span class="layer-tag" style="background:#0d6efd">HAL</span>
+  <h3>controle.h</h3>
+  <p>Loop de controle determinístico via TIM3 @ 2kHz.</p>
+  <p style="margin-top:8px;font-size:12px;color:#888">3 funçãoões</p>
+</a>
+<a class="index-card" href="pids.html">
+  <span class="layer-tag" style="background:#198754">Control</span>
+  <h3>pids.h</h3>
+  <p>PIDs em cascata: malha de velocidade (RPM) e malha de corrente.</p>
+  <p style="margin-top:8px;font-size:12px;color:#888">2 funçãoões · 8 variáveleis</p>
+</a>
+<a class="index-card" href="autotune.html">
+  <span class="layer-tag" style="background:#198754">Control</span>
+  <h3>autotune.h</h3>
+  <p>Sintonia automática da malha de corrente via sTune (Ziegler-Nichols).</p>
+  <p style="margin-top:8px;font-size:12px;color:#888">1 função</p>
+</a>
+<a class="index-card" href="maquina.html">
+  <span class="layer-tag" style="background:#dc3545">App</span>
+  <h3>maquina.h</h3>
+  <p>Lógica de alto nível: soft-start e parada de emergência.</p>
+  <p style="margin-top:8px;font-size:12px;color:#888">2 funçãoões</p>
+</a>
+</div>
+</main>
+</body>
+</html>

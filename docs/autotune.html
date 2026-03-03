@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>autotune.h — Fresadora STM32</title>
+<style>
+:root {
+  --bg: #f8f9fa; --surface: #ffffff; --border: #dee2e6;
+  --text: #212529; --muted: #6c757d;
+  --hal: #0d6efd; --control: #198754; --app: #dc3545; --config: #6c757d;
+  --warn-bg: #fff3cd; --warn-border: #ffc107; --warn-text: #664d03;
+  --note-bg: #cff4fc; --note-border: #0dcaf0; --note-text: #055160;
+  --code-bg: #f1f3f5;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+       font-size: 15px; background: var(--bg); color: var(--text); }
+a { color: inherit; text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* Layout */
+.sidebar { position: fixed; top: 0; left: 0; width: 260px; height: 100vh;
+           background: var(--surface); border-right: 1px solid var(--border);
+           overflow-y: auto; padding: 0 0 24px; }
+.main { margin-left: 260px; padding: 40px 48px; max-width: 960px; }
+
+/* Sidebar */
+.sidebar-logo { padding: 20px 20px 16px; border-bottom: 1px solid var(--border);
+                font-weight: 700; font-size: 14px; line-height: 1.4; color: var(--text); }
+.sidebar-logo span { display: block; font-size: 11px; font-weight: 400; color: var(--muted); }
+.sidebar-section { padding: 14px 20px 4px; font-size: 11px; font-weight: 700;
+                   text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.sidebar-item { display: flex; align-items: center; gap: 10px;
+                padding: 7px 20px; font-size: 13px; color: var(--text);
+                transition: background .12s; }
+.sidebar-item:hover { background: var(--bg); }
+.sidebar-item.active { background: #e8f0fe; color: var(--hal); font-weight: 600; }
+.sidebar-badge { font-size: 10px; font-weight: 700; padding: 2px 7px;
+                 border-radius: 99px; color: #fff; white-space: nowrap; }
+
+/* Page header */
+.page-header { margin-bottom: 36px; padding-bottom: 20px;
+               border-bottom: 1px solid var(--border); }
+.page-header h1 { font-size: 26px; font-weight: 700; margin-bottom: 6px; }
+.page-header .filename { font-family: 'SFMono-Regular', Consolas, monospace;
+                          font-size: 13px; color: var(--muted); margin-bottom: 14px; }
+.page-header .brief { font-size: 16px; line-height: 1.6; color: #444; }
+
+/* Sections */
+h2 { font-size: 18px; font-weight: 700; margin: 36px 0 16px;
+     padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+h3 { font-size: 15px; font-weight: 700; margin: 28px 0 10px; color: #333; }
+
+/* Detail text */
+.detail { line-height: 1.7; color: #444; margin-bottom: 20px; }
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; margin-bottom: 20px;
+        font-size: 13.5px; }
+th { background: var(--bg); text-align: left; padding: 9px 12px;
+     font-weight: 600; border: 1px solid var(--border); }
+td { padding: 8px 12px; border: 1px solid var(--border); vertical-align: top; }
+tr:nth-child(even) td { background: #fafafa; }
+code { font-family: 'SFMono-Regular', Consolas, monospace; font-size: 12.5px;
+       background: var(--code-bg); padding: 1px 5px; border-radius: 3px; }
+
+/* Function cards */
+.fn-card { border: 1px solid var(--border); border-radius: 8px;
+           margin-bottom: 24px; overflow: hidden; }
+.fn-header { padding: 14px 18px; background: var(--bg);
+             border-bottom: 1px solid var(--border); }
+.fn-sig { font-family: 'SFMono-Regular', Consolas, monospace;
+          font-size: 13.5px; font-weight: 600; color: #333; }
+.fn-brief { font-size: 13px; color: var(--muted); margin-top: 4px; }
+.fn-body { padding: 16px 18px; }
+.fn-body p { line-height: 1.7; color: #444; margin-bottom: 12px; }
+
+/* Variable cards */
+.var-card { display: flex; gap: 12px; align-items: flex-start;
+            padding: 10px 14px; border: 1px solid var(--border);
+            border-radius: 6px; margin-bottom: 10px; }
+.var-type { font-family: monospace; font-size: 12px; color: var(--muted);
+            white-space: nowrap; padding-top: 1px; }
+.var-name { font-family: monospace; font-size: 13px; font-weight: 700; }
+.var-desc { font-size: 13px; color: #555; }
+
+/* Alerts */
+.alert { padding: 12px 16px; border-radius: 6px; margin-bottom: 14px;
+         font-size: 13.5px; line-height: 1.6; }
+.alert-warn { background: var(--warn-bg); border-left: 4px solid var(--warn-border);
+              color: var(--warn-text); }
+.alert-note { background: var(--note-bg); border-left: 4px solid var(--note-border);
+              color: var(--note-text); }
+.alert b { font-weight: 700; }
+
+/* Index cards */
+.index-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+              margin-bottom: 32px; }
+.index-card { border: 1px solid var(--border); border-radius: 8px;
+              padding: 18px 20px; background: var(--surface);
+              transition: box-shadow .15s; }
+.index-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,.08); }
+.index-card h3 { font-size: 14px; margin: 0 0 6px; }
+.index-card p  { font-size: 13px; color: #555; line-height: 1.5; }
+.index-card .layer-tag { font-size: 11px; font-weight: 700; padding: 2px 8px;
+                          border-radius: 4px; color: #fff; display: inline-block;
+                          margin-bottom: 10px; }
+
+@media (max-width: 900px) {
+  .sidebar { display: none; }
+  .main { margin-left: 0; padding: 24px 20px; }
+  .index-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<nav class="sidebar">
+<div class="sidebar-logo">Fresadora STM32<span>Documentação da API</span></div>
+<div class="sidebar-section">Visão Geral</div>
+<a class="sidebar-item" href="index.html"><span style="flex:1">Índice</span></a>
+<div class="sidebar-section">Configuração</div>
+<a class="sidebar-item" href="config.html"><span style="flex:1">config.h</span><span class="sidebar-badge" style="background:#6c757d">Config</span></a>
+<div class="sidebar-section">HAL — Hardware</div>
+<a class="sidebar-item" href="pwm.html"><span style="flex:1">pwm.h</span><span class="sidebar-badge" style="background:#0d6efd">HAL</span></a>
+<a class="sidebar-item" href="rpm.html"><span style="flex:1">rpm.h</span><span class="sidebar-badge" style="background:#0d6efd">HAL</span></a>
+<a class="sidebar-item" href="corrente.html"><span style="flex:1">corrente.h</span><span class="sidebar-badge" style="background:#0d6efd">HAL</span></a>
+<a class="sidebar-item" href="controle.html"><span style="flex:1">controle.h</span><span class="sidebar-badge" style="background:#0d6efd">HAL</span></a>
+<div class="sidebar-section">Control — Algoritmos</div>
+<a class="sidebar-item" href="pids.html"><span style="flex:1">pids.h</span><span class="sidebar-badge" style="background:#198754">Control</span></a>
+<a class="sidebar-item active" href="autotune.html"><span style="flex:1">autotune.h</span><span class="sidebar-badge" style="background:#198754">Control</span></a>
+<div class="sidebar-section">App — Aplicação</div>
+<a class="sidebar-item" href="maquina.html"><span style="flex:1">maquina.h</span><span class="sidebar-badge" style="background:#dc3545">App</span></a>
+</nav>
+<main class="main">
+<div class="page-header">
+<div style="margin-bottom:10px"><span class="layer-tag" style="background:#198754">Control</span></div>
+<h1>autotune.h</h1>
+<div class="filename">lib/autotune.h" — Control Layer</div>
+<div class="brief">Sintonia automática da malha de corrente via sTune (Ziegler-Nichols).</div>
+</div>
+<div class="detail">Executa um Step Test na malha de corrente para determinar os ganhos PID ideais pelo método Ziegler-Nichols, usando a biblioteca sTune.</div>
+<h2>Referência</h2>
+<h3>Sequência do Teste</h3>
+<table><thead><tr><th>Nome</th><th>Tipo</th><th>Valor</th><th>Descrição</th></tr></thead><tbody>
+<tr><td><code>1</code></td><td><code></code></td><td><code>pausarTimerControle()</code></td><td>TIM3 para — sTune assume o PWM</td></tr>
+<tr><td><code>2</code></td><td><code></code></td><td><code>Degrau 450 → 1350</code></td><td>~10% → ~30% de MAX_PWM = 4499</td></tr>
+<tr><td><code>3</code></td><td><code></code></td><td><code>Mede resposta</code></td><td>sTune calcula Kp, Ki, Kd</td></tr>
+<tr><td><code>4</code></td><td><code></code></td><td><code>SetTunings()</code></td><td>Ganhos aplicados ao pidCorrente</td></tr>
+<tr><td><code>5</code></td><td><code></code></td><td><code>retormarTimerControle()</code></td><td>TIM3 retoma operação normal</td></tr>
+</tbody></table>
+<h3>Serial Plotter</h3>
+<table><thead><tr><th>Nome</th><th>Tipo</th><th>Valor</th><th>Descrição</th></tr></thead><tbody>
+<tr><td><code>Canal 1</code></td><td><code></code></td><td><code>Corrente real</code></td><td>0–20A</td></tr>
+<tr><td><code>Canal 2</code></td><td><code></code></td><td><code>PWM normalizado</code></td><td>0–20, fator = MAX_PWM/20 = 225</td></tr>
+</tbody></table>
+
+<h2>Funções</h2>
+<div class="fn-card">
+<div class="fn-header"><div class="fn-sig"><code>void executarAutotuneCorrente()</code></div><div class="fn-brief">Executa o processo completo de autotune da malha de corrente.</div></div>
+<div class="fn-body">
+<p>Aguarda 5 segundos antes de iniciar. Se a corrente exceder MAX_AMPERE durante o teste, aborta, zera o PWM e retoma o TIM3. Ao final imprime os novos ganhos no Serial Monitor.</p>
+<div class="alert alert-warn"><b>⚠ Atenção:</b> O motor girará brevemente durante o teste. Mantenha o eixo desimpedido e afaste-se antes de iniciar.</div>
+</div></div>
+</main>
+</body>
+</html>
