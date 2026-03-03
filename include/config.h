@@ -82,3 +82,21 @@
 // --- SOFT-START ---
 #define SOFTSTART_ALVO   5000.0f // RPM alvo de trabalho
 #define SOFTSTART_PASSO  0.1f    // Incremento de RPM por ciclo do loop()
+
+// --- ENCODER KY-040 ---
+#define PIN_ENC_CLK      PB12   // Sinal CLK (A)
+#define PIN_ENC_DT       PB13   // Sinal DT  (B)
+#define PIN_ENC_SW       PB14   // Botão (SW)
+#define ENC_DEBOUNCE_MS  5      // Debounce do botão em ms
+#define ENC_LONG_PRESS_MS 800   // Tempo para considerar pressão longa (ms)
+
+// --- DISPLAY SSD1306 I²C ---
+#define DISPLAY_ADDR     0x3C   // Endereço I²C padrão do SSD1306
+#define DISPLAY_W        128    // Largura em pixels
+#define DISPLAY_H        64     // Altura em pixels
+#define DISPLAY_UPDATE_MS 100   // Intervalo de atualização do display (ms) — 10Hz
+
+// --- GRÁFICO PID ---
+// 128 amostras × intervalo de coleta ≈ janela de ~10s
+#define GRAFICO_AMOSTRAS    128   // Deve ser igual a DISPLAY_W para 1 ponto = 1 pixel
+#define GRAFICO_INTERVALO_MS 78  // ~78ms por amostra → 128 × 78ms ≈ 10s

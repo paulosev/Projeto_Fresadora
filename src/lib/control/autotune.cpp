@@ -1,8 +1,8 @@
 #include <Arduino.h>
 #include "autotune.h"
 #include "pids.h"
-#include "lib/hal/pwm.h"
-#include "lib/hal/corrente.h"
+#include "pwm.h"
+#include "corrente.h"
 #include "controle.h"
 #include "config.h"
 #include <sTune.h>

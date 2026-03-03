@@ -1,11 +1,11 @@
 #include <Arduino.h>
 #include "controle.h"
-#include "lib/hal/rpm.h"
-#include "lib/hal/corrente.h"
-#include "lib/hal/pwm.h"
-#include "lib/control/pids.h"
-#include "lib/control/autotune.h"
-#include "lib/app/maquina.h"
+#include "rpm.h"
+#include "corrente.h"
+#include "pwm.h"
+#include "pids.h"
+#include "autotune.h"
+#include "maquina.h"
 #include "config.h"
 
 

@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include "monitor.h"
-#include "lib/control/pids.h"
+#include "pids.h"
 #include "config.h"
 
 // =============================================================================
