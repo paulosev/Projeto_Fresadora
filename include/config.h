@@ -8,9 +8,11 @@
 // =============================================================================
 
 // --- PINOS DE HARDWARE ---
-#define PIN_PWM          PA8    // TIM1 CH1 - Saída PWM de potência
-#define PIN_ACS712       PA1    // ADC1 CH1 - Sensor de corrente ACS712-30A
-#define PIN_HALL         PA0    // TIM2 CH1 - Sensor Hall (Input Capture)
+#define PIN_PWM           PA8   // TIM1 CH1 - Saída PWM de potência
+#define PIN_ACS712        PA1   // ADC1 CH1 - Sensor de corrente ACS712-30A
+#define PIN_HALL          PA0   // TIM2 CH1 - Sensor Hall (Input Capture)
+#define PIN_TENSAO_FONTE  PA2   // ADC1 CH2 - Divisor de tensão da fonte
+#define PIN_TENSAO_MOSFET PA3   // ADC1 CH3 - Divisor de tensão sobre o MOSFET
 
 // --- PARÂMETROS DO MOTOR ---
 #define PULSOS_POR_VOLTA 4      // Número de pulsos por revolução do anel magnético
@@ -51,6 +53,16 @@
 #define ADC_RESOLUCAO    4095.0f
 #define ACS712_OFFSET    1.65f  // Vcc / 2
 #define ACS712_SENS      0.066f // 66mV/A (modelo 30A)
+
+// --- MONITOR DE TENSÃO E POTÊNCIA ---
+// Divisor de tensão: R1 = 180kΩ, R2 = 3kΩ
+// Razão = (R1 + R2) / R2 = 183 / 3 = 61
+// Tensão máxima medida: 3.3V × 61 = 201.3V — cobre fonte de até 200V
+// AJUSTE DIVISOR_TENSAO se usar resistores diferentes!
+#define DIVISOR_TENSAO       61.0f   // (R1 + R2) / R2
+#define TENSAO_FONTE_MINIMA  10.0f   // Tensão mínima para considerar fonte ligada (V)
+#define MONITOR_EMA_ALFA     0.05f   // Filtro EMA para tensões — mais lento que RPM
+                                     // (alfa baixo = mais suavização, reação mais lenta)
 
 // --- GANHOS PID (valores iniciais — rode Autotune para calibrar) ---
 // Malha de Velocidade (Externa) - 100Hz
