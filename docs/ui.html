@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Índice — Fresadora STM32</title>
+<title>UI Fluxograma — Fresadora STM32</title>
 <style>
 :root{--bg:#f8f9fa;--surface:#fff;--border:#dee2e6;--text:#212529;--muted:#6c757d;
 --warn-bg:#fff3cd;--warn-border:#ffc107;--warn-text:#664d03;
@@ -76,8 +76,8 @@ box-shadow:0 0 8px rgba(0,255,100,.08) inset;margin:8px 0 4px;width:260px;}
 <body><nav class="sidebar">
 <div class="sidebar-logo">Fresadora STM32<span>Documentação da API</span></div>
 <div class="sidebar-section">Visão Geral</div>
-<a class="sidebar-item active" href="index.html"><span style="flex:1">Índice</span></a>
-<a class="sidebar-item" href="ui.html"><span style="flex:1">UI Fluxograma</span></a>
+<a class="sidebar-item" href="index.html"><span style="flex:1">Índice</span></a>
+<a class="sidebar-item active" href="ui.html"><span style="flex:1">UI Fluxograma</span></a>
 <div class="sidebar-section">Configuração</div>
 <a class="sidebar-item" href="config.html"><span style="flex:1">config.h</span><span class="sidebar-badge" style="background:#6c757d">Config</span></a>
 <div class="sidebar-section">HAL — Hardware</div>
@@ -94,88 +94,118 @@ box-shadow:0 0 8px rgba(0,255,100,.08) inset;margin:8px 0 4px;width:260px;}
 <a class="sidebar-item" href="maquina.html"><span style="flex:1">maquina.h</span><span class="sidebar-badge" style="background:#dc3545">App</span></a>
 <a class="sidebar-item" href="grafico.html"><span style="flex:1">grafico.h</span><span class="sidebar-badge" style="background:#dc3545">App</span></a>
 <a class="sidebar-item" href="display.html"><span style="flex:1">display.h</span><span class="sidebar-badge" style="background:#dc3545">App</span></a>
-</nav><main class="main"><div class="page-header"><h1>Fresadora STM32 — Documentação da API</h1>
-<div class="brief">Sistema de controle de motor universal 1800W em DC pulsado. STM32F103C8T6 (Blue Pill) com PlatformIO.</div></div>
-<h2>Arquitetura</h2>
-<table><thead><tr><th>Camada</th><th>Arquivos</th><th>Responsabilidade</th></tr></thead><tbody>
-<tr><td><span class="sidebar-badge" style="background:#6c757d">Config</span></td>
-<td><a href="config.html"><code>config.h</code></a></td>
-<td>Constantes, pinos, limites, ganhos PID e parâmetros de UI centralizados</td></tr>
-<tr><td><span class="sidebar-badge" style="background:#0d6efd">HAL</span></td>
-<td><a href="pwm.html"><code>pwm</code></a> · <a href="rpm.html"><code>rpm</code></a> · <a href="corrente.html"><code>corrente</code></a> · <a href="controle.html"><code>controle</code></a> · <a href="monitor.html"><code>monitor</code></a> · <a href="encoder.html"><code>encoder</code></a></td>
-<td>Acesso direto ao hardware. Única camada que toca registradores e pinos.</td></tr>
-<tr><td><span class="sidebar-badge" style="background:#198754">Control</span></td>
-<td><a href="pids.html"><code>pids</code></a> · <a href="autotune.html"><code>autotune</code></a></td>
-<td>Algoritmos de controle puros. Não conhece pinos nem registradores.</td></tr>
-<tr><td><span class="sidebar-badge" style="background:#dc3545">App</span></td>
-<td><a href="maquina.html"><code>maquina</code></a> · <a href="grafico.html"><code>grafico</code></a> · <a href="display.html"><code>display</code></a></td>
-<td>Lógica de aplicação. Orquestra HAL e Control. Interface com o usuário.</td></tr>
+</nav><main class="main"><div class="page-header"><h1>Fluxograma da Interface UI</h1>
+<div class="brief">SSD1306 0.96" + Encoder KY-040 — Navegação, telas e menu de configuração.</div></div>
+<h2>Navegação Entre Telas</h2>
+<p class="detail">Girar o encoder navega ciclicamente entre as 5 telas. Pressionar longo em qualquer tela abre o Menu de Configuração.</p>
+<div class="nav-flow">
+<div class="nav-boxactive">0 · Principal</div>
+<span class="nav-arrow">↻</span>
+<div class="nav-box">1 · Mtr Motor</div>
+<span class="nav-arrow">↻</span>
+<div class="nav-box">2 · Mtr Fonte</div>
+<span class="nav-arrow">↻</span>
+<div class="nav-box">3 · Gráfico PID</div>
+<span class="nav-arrow">↻</span>
+<div class="nav-box">4 · Diagnóstico</div>
+<span class="nav-arrow">↻ (circular)</span></div>
+<h2>Telas de Monitoramento</h2>
+<div class="screen-grid">
+<div class="screen-card">
+<h4>Tela 0 · Principal</h4>
+<div class="screen-id">Tela padrão ao ligar</div>
+<div class="oled"><span class="dim">RPM  </span><span class="warn"> 4850 </span><span class="dim">/ 5000
+</span><span style="color:#00cc77">████████████████</span><span class="dim">████
+</span><span class="dim">Motor: </span><span class="hi">LIGADO   </span><span class="dim">SP▲▼</span></div>
+<ul class="action-list">
+<li><span>↻ girar</span><span>Ajusta setpoint RPM (±50 por passo)</span></li>
+<li><span>● pressionar</span><span>Liga / desliga motor</span></li>
+<li><span>⏸ pressionar longo</span><span>Abre Menu de Configuração</span></li>
+</ul></div>
+<div class="screen-card">
+<h4>Tela 1 · Monitor Motor</h4>
+<div class="screen-id">Somente leitura</div>
+<div class="oled"><span class="dim">MONITOR DO MOTOR
+━━━━━━━━━━━━━━━━
+</span><span class="dim">Vmot: </span><span class="hi">112.4V </span><span class="dim">I:</span><span class="warn">8.2A
+</span><span class="dim">Pot:  </span><span class="hi"> 921W</span></div>
+<ul class="action-list">
+<li><span>↻ girar</span><span>Troca de tela</span></li>
+<li><span>⏸ pressionar longo</span><span>Abre Menu de Configuração</span></li>
+</ul></div>
+<div class="screen-card">
+<h4>Tela 2 · Monitor Fonte</h4>
+<div class="screen-id">Somente leitura</div>
+<div class="oled"><span class="dim">MONITOR DA FONTE
+━━━━━━━━━━━━━━━━
+</span><span class="dim">Vfonte: </span><span class="hi">127.3V
+</span><span class="dim">Status: </span><span class="warn">LIGADA</span></div>
+<ul class="action-list">
+<li><span>↻ girar</span><span>Troca de tela</span></li>
+<li><span>⏸ pressionar longo</span><span>Abre Menu de Configuração</span></li>
+</ul></div>
+<div class="screen-card">
+<h4>Tela 3 · Gráfico PID</h4>
+<div class="screen-id">Buffer circular 128 amostras ≈ 10s. Linha sólida = RPM, tracejada = Setpoint. Escala Y automática.</div>
+<div class="oled"><span class="dim">▲RPM
+  ╭──────────────╮
+  │  ╱‾‾‾‾‾‾‾‾‾‾│ ← RPM
+  │╱             │ ···· SP
+  ╰──────────────╯
+0s           10s ▶</span></div>
+<ul class="action-list">
+<li><span>↻ girar</span><span>Troca de tela</span></li>
+<li><span>● pressionar</span><span>Pausa / retoma captura</span></li>
+<li><span>⏸ pressionar longo</span><span>Abre Menu de Configuração</span></li>
+</ul></div>
+<div class="screen-card">
+<h4>Tela 4 · Diagnóstico</h4>
+<div class="screen-id">Variáveis internas do cascata PID.</div>
+<div class="oled"><span class="dim">DIAGNOSTICO
+━━━━━━━━━━━━━━━━
+</span><span class="dim">PWM:  </span><span class="hi">3960 </span><span class="dim">/4499
+</span><span class="dim">SP_I: </span><span class="hi">12.4A</span></div>
+<ul class="action-list">
+<li><span>↻ girar</span><span>Troca de tela</span></li>
+<li><span>⏸ pressionar longo</span><span>Abre Menu de Configuração</span></li>
+</ul></div>
+</div>
+<h2>Menu de Configuração</h2>
+<p class="detail">Acessado por pressão longa em qualquer tela. Girar navega pelos itens (scroll de 3 visíveis). Pressionar seleciona.</p>
+<div class="screen-grid">
+<div class="screen-card"><h4>Lista de Itens</h4><div class="screen-id">Navegação com scroll</div>
+<div class="oled"><span class="dim">=== CONFIG ===
+━━━━━━━━━━━━━━━━
+</span><span class="hi">» Setpoint RPM  
+</span><span class="dim">  Kp Corrente   
+  Ki Corrente   </span></div>
+<ul class="action-list"><li><span>↻ girar</span><span>Navega pelos itens</span></li>
+<li><span>● pressionar</span><span>Seleciona item / entra em edição</span></li>
+<li><span>⏸ pressionar longo</span><span>Volta à Tela 0</span></li></ul></div>
+<div class="screen-card"><h4>Edição de Valor</h4><div class="screen-id">Valor pisca durante edição</div>
+<div class="oled"><span class="dim">[ SETPOINT RPM  ]
+━━━━━━━━━━━━━━━━
+</span><span class="dim">Valor: </span><span class="hi">  5000
+</span><span class="dim">Min:1000  Max:10000</span></div>
+<ul class="action-list"><li><span>↻ girar</span><span>Incrementa / decrementa valor</span></li>
+<li><span>● pressionar</span><span>Confirma e aplica</span></li>
+<li><span>⏸ pressionar longo</span><span>Cancela sem salvar</span></li></ul></div>
+</div>
+<h2>Tela de Erro Crítico</h2>
+<p class="detail">Sobrepõe qualquer tela quando <code>paradaEmergencia()</code> é chamada. Pisca a cada 600ms. Reset de hardware necessário para sair.</p>
+<div class="screen-grid"><div class="screen-card">
+<div class="oled"><span class="warn">!!! ERRO CRITICO !!!
+━━━━━━━━━━━━━━━━
+</span><span class="hi">SOBRECORRENTE
+</span><span class="dim">Reset p/ continuar</span></div>
+<div class="alert alert-warn" style="margin-top:10px"><b>⚠ Atenção:</b> O sistema trava intencionalmente. Motor e TIM3 são parados imediatamente. O display permanece ativo para exibir a causa do erro.</div>
+</div></div>
+<h2>Pinos de Hardware</h2>
+<table><thead><tr><th>Pino STM32</th><th>Componente</th><th>Função</th></tr></thead><tbody>
+<tr><td><code>PB6</code></td><td>SSD1306</td><td>SCL — I²C1</td></tr>
+<tr><td><code>PB7</code></td><td>SSD1306</td><td>SDA — I²C1</td></tr>
+<tr><td><code>PB12</code></td><td>KY-040</td><td>CLK (A)</td></tr>
+<tr><td><code>PB13</code></td><td>KY-040</td><td>DT (B)</td></tr>
+<tr><td><code>PB14</code></td><td>KY-040</td><td>SW (botão)</td></tr>
 </tbody></table>
-<h2>Fluxo de Execução</h2>
-<table><thead><tr><th>Contexto</th><th>Frequência</th><th>Tarefas</th></tr></thead><tbody>
-<tr><td><code>TIM3 ISR</code></td><td><b>2kHz</b> — prioridade 0</td><td>lerCorrente() → calcularRPM() → processarCascata() → verificações de segurança</td></tr>
-<tr><td><code>Hall ISR (PA0)</code></td><td>Por pulso — prioridade 1</td><td>Registra período entre pulsos do sensor Hall</td></tr>
-<tr><td><code>loop()</code></td><td>~95% do CPU livre</td><td>executarSoftStart() · atualizarMonitor() · atualizarGrafico() · atualizarDisplay()</td></tr>
-</tbody></table>
-<h2>Arquivos</h2><div class="index-grid">
-<a class="index-card" href="config.html">
-<span class="layer-tag" style="background:#6c757d">Configuração</span>
-<h3>config.h</h3>
-<p>Configuração central do projeto — constantes, pinos e limites.</p>
-<p style="margin-top:8px;font-size:12px;color:#888">Constantes e defines</p></a>
-<a class="index-card" href="pwm.html">
-<span class="layer-tag" style="background:#0d6efd">HAL</span>
-<h3>pwm.h</h3>
-<p>Saída PWM de potência via TIM1 CH1 (PA8) a 16kHz.</p>
-<p style="margin-top:8px;font-size:12px;color:#888">2 funçãoões</p></a>
-<a class="index-card" href="rpm.html">
-<span class="layer-tag" style="background:#0d6efd">HAL</span>
-<h3>rpm.h</h3>
-<p>Medição de RPM por período entre pulsos do sensor Hall (PA0).</p>
-<p style="margin-top:8px;font-size:12px;color:#888">2 funçãoões</p></a>
-<a class="index-card" href="corrente.html">
-<span class="layer-tag" style="background:#0d6efd">HAL</span>
-<h3>corrente.h</h3>
-<p>Leitura de corrente via sensor ACS712-30A em PA1.</p>
-<p style="margin-top:8px;font-size:12px;color:#888">1 função</p></a>
-<a class="index-card" href="controle.html">
-<span class="layer-tag" style="background:#0d6efd">HAL</span>
-<h3>controle.h</h3>
-<p>Loop de controle determinístico via TIM3 @ 2kHz.</p>
-<p style="margin-top:8px;font-size:12px;color:#888">3 funçãoões</p></a>
-<a class="index-card" href="monitor.html">
-<span class="layer-tag" style="background:#0d6efd">HAL</span>
-<h3>monitor.h</h3>
-<p>Monitoramento de tensão da fonte, tensão do motor e potência.</p>
-<p style="margin-top:8px;font-size:12px;color:#888">1 função · 4 variáveleis</p></a>
-<a class="index-card" href="encoder.html">
-<span class="layer-tag" style="background:#0d6efd">HAL</span>
-<h3>encoder.h</h3>
-<p>Leitura do encoder rotativo KY-040 (CLK/DT/SW) via polling.</p>
-<p style="margin-top:8px;font-size:12px;color:#888">2 funçãoões · 3 variáveleis</p></a>
-<a class="index-card" href="pids.html">
-<span class="layer-tag" style="background:#198754">Control</span>
-<h3>pids.h</h3>
-<p>PIDs em cascata: malha de velocidade (RPM) e malha de corrente.</p>
-<p style="margin-top:8px;font-size:12px;color:#888">4 funçãoões · 7 variáveleis</p></a>
-<a class="index-card" href="autotune.html">
-<span class="layer-tag" style="background:#198754">Control</span>
-<h3>autotune.h</h3>
-<p>Sintonia automática da malha de corrente via sTune (Ziegler-Nichols).</p>
-<p style="margin-top:8px;font-size:12px;color:#888">1 função</p></a>
-<a class="index-card" href="maquina.html">
-<span class="layer-tag" style="background:#dc3545">App</span>
-<h3>maquina.h</h3>
-<p>Lógica de alto nível: soft-start e parada de emergência.</p>
-<p style="margin-top:8px;font-size:12px;color:#888">2 funçãoões</p></a>
-<a class="index-card" href="grafico.html">
-<span class="layer-tag" style="background:#dc3545">App</span>
-<h3>grafico.h</h3>
-<p>Buffer circular para o gráfico de RPM vs Setpoint (~10s).</p>
-<p style="margin-top:8px;font-size:12px;color:#888">2 funçãoões · 5 variáveleis</p></a>
-<a class="index-card" href="display.html">
-<span class="layer-tag" style="background:#dc3545">App</span>
-<h3>display.h</h3>
-<p>Interface gráfica: SSD1306 0.96&quot; + Encoder KY-040.</p>
-<p style="margin-top:8px;font-size:12px;color:#888">2 funçãoões</p></a>
-</div></main></body></html>
+<div class="alert alert-note"><b>ℹ Nota:</b> PB6/PB7 = I²C1 nativo do STM32F103. PB12–PB14 = GPIO livres — sem conflito com TIM1, TIM2, TIM3 nem ADC1.</div></main></body></html>

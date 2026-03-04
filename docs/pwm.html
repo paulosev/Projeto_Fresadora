@@ -1,124 +1,83 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<html lang="pt-BR"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>pwm.h — Fresadora STM32</title>
 <style>
-:root {
-  --bg: #f8f9fa; --surface: #ffffff; --border: #dee2e6;
-  --text: #212529; --muted: #6c757d;
-  --hal: #0d6efd; --control: #198754; --app: #dc3545; --config: #6c757d;
-  --warn-bg: #fff3cd; --warn-border: #ffc107; --warn-text: #664d03;
-  --note-bg: #cff4fc; --note-border: #0dcaf0; --note-text: #055160;
-  --code-bg: #f1f3f5;
-}
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-       font-size: 15px; background: var(--bg); color: var(--text); }
-a { color: inherit; text-decoration: none; }
-a:hover { text-decoration: underline; }
-
-/* Layout */
-.sidebar { position: fixed; top: 0; left: 0; width: 260px; height: 100vh;
-           background: var(--surface); border-right: 1px solid var(--border);
-           overflow-y: auto; padding: 0 0 24px; }
-.main { margin-left: 260px; padding: 40px 48px; max-width: 960px; }
-
-/* Sidebar */
-.sidebar-logo { padding: 20px 20px 16px; border-bottom: 1px solid var(--border);
-                font-weight: 700; font-size: 14px; line-height: 1.4; color: var(--text); }
-.sidebar-logo span { display: block; font-size: 11px; font-weight: 400; color: var(--muted); }
-.sidebar-section { padding: 14px 20px 4px; font-size: 11px; font-weight: 700;
-                   text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
-.sidebar-item { display: flex; align-items: center; gap: 10px;
-                padding: 7px 20px; font-size: 13px; color: var(--text);
-                transition: background .12s; }
-.sidebar-item:hover { background: var(--bg); }
-.sidebar-item.active { background: #e8f0fe; color: var(--hal); font-weight: 600; }
-.sidebar-badge { font-size: 10px; font-weight: 700; padding: 2px 7px;
-                 border-radius: 99px; color: #fff; white-space: nowrap; }
-
-/* Page header */
-.page-header { margin-bottom: 36px; padding-bottom: 20px;
-               border-bottom: 1px solid var(--border); }
-.page-header h1 { font-size: 26px; font-weight: 700; margin-bottom: 6px; }
-.page-header .filename { font-family: 'SFMono-Regular', Consolas, monospace;
-                          font-size: 13px; color: var(--muted); margin-bottom: 14px; }
-.page-header .brief { font-size: 16px; line-height: 1.6; color: #444; }
-
-/* Sections */
-h2 { font-size: 18px; font-weight: 700; margin: 36px 0 16px;
-     padding-bottom: 8px; border-bottom: 1px solid var(--border); }
-h3 { font-size: 15px; font-weight: 700; margin: 28px 0 10px; color: #333; }
-
-/* Detail text */
-.detail { line-height: 1.7; color: #444; margin-bottom: 20px; }
-
-/* Tables */
-table { width: 100%; border-collapse: collapse; margin-bottom: 20px;
-        font-size: 13.5px; }
-th { background: var(--bg); text-align: left; padding: 9px 12px;
-     font-weight: 600; border: 1px solid var(--border); }
-td { padding: 8px 12px; border: 1px solid var(--border); vertical-align: top; }
-tr:nth-child(even) td { background: #fafafa; }
-code { font-family: 'SFMono-Regular', Consolas, monospace; font-size: 12.5px;
-       background: var(--code-bg); padding: 1px 5px; border-radius: 3px; }
-
-/* Function cards */
-.fn-card { border: 1px solid var(--border); border-radius: 8px;
-           margin-bottom: 24px; overflow: hidden; }
-.fn-header { padding: 14px 18px; background: var(--bg);
-             border-bottom: 1px solid var(--border); }
-.fn-sig { font-family: 'SFMono-Regular', Consolas, monospace;
-          font-size: 13.5px; font-weight: 600; color: #333; }
-.fn-brief { font-size: 13px; color: var(--muted); margin-top: 4px; }
-.fn-body { padding: 16px 18px; }
-.fn-body p { line-height: 1.7; color: #444; margin-bottom: 12px; }
-
-/* Variable cards */
-.var-card { display: flex; gap: 12px; align-items: flex-start;
-            padding: 10px 14px; border: 1px solid var(--border);
-            border-radius: 6px; margin-bottom: 10px; }
-.var-type { font-family: monospace; font-size: 12px; color: var(--muted);
-            white-space: nowrap; padding-top: 1px; }
-.var-name { font-family: monospace; font-size: 13px; font-weight: 700; }
-.var-desc { font-size: 13px; color: #555; }
-
-/* Alerts */
-.alert { padding: 12px 16px; border-radius: 6px; margin-bottom: 14px;
-         font-size: 13.5px; line-height: 1.6; }
-.alert-warn { background: var(--warn-bg); border-left: 4px solid var(--warn-border);
-              color: var(--warn-text); }
-.alert-note { background: var(--note-bg); border-left: 4px solid var(--note-border);
-              color: var(--note-text); }
-.alert b { font-weight: 700; }
-
-/* Index cards */
-.index-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
-              margin-bottom: 32px; }
-.index-card { border: 1px solid var(--border); border-radius: 8px;
-              padding: 18px 20px; background: var(--surface);
-              transition: box-shadow .15s; }
-.index-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,.08); }
-.index-card h3 { font-size: 14px; margin: 0 0 6px; }
-.index-card p  { font-size: 13px; color: #555; line-height: 1.5; }
-.index-card .layer-tag { font-size: 11px; font-weight: 700; padding: 2px 8px;
-                          border-radius: 4px; color: #fff; display: inline-block;
-                          margin-bottom: 10px; }
-
-@media (max-width: 900px) {
-  .sidebar { display: none; }
-  .main { margin-left: 0; padding: 24px 20px; }
-  .index-grid { grid-template-columns: 1fr; }
-}
-</style>
-</head>
-<body>
-<nav class="sidebar">
+:root{--bg:#f8f9fa;--surface:#fff;--border:#dee2e6;--text:#212529;--muted:#6c757d;
+--warn-bg:#fff3cd;--warn-border:#ffc107;--warn-text:#664d03;
+--note-bg:#cff4fc;--note-border:#0dcaf0;--note-text:#055160;--code-bg:#f1f3f5;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:15px;background:var(--bg);color:var(--text);}
+a{color:inherit;text-decoration:none;}a:hover{text-decoration:underline;}
+.sidebar{position:fixed;top:0;left:0;width:260px;height:100vh;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:0 0 24px;}
+.main{margin-left:260px;padding:40px 48px;max-width:980px;}
+.sidebar-logo{padding:20px 20px 16px;border-bottom:1px solid var(--border);font-weight:700;font-size:14px;line-height:1.4;}
+.sidebar-logo span{display:block;font-size:11px;font-weight:400;color:var(--muted);}
+.sidebar-section{padding:14px 20px 4px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);}
+.sidebar-item{display:flex;align-items:center;gap:10px;padding:7px 20px;font-size:13px;color:var(--text);transition:background .12s;}
+.sidebar-item:hover{background:var(--bg);}
+.sidebar-item.active{background:#e8f0fe;color:#0d6efd;font-weight:600;}
+.sidebar-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px;color:#fff;white-space:nowrap;}
+.page-header{margin-bottom:36px;padding-bottom:20px;border-bottom:1px solid var(--border);}
+.page-header h1{font-size:26px;font-weight:700;margin-bottom:6px;}
+.page-header .filename{font-family:'SFMono-Regular',Consolas,monospace;font-size:13px;color:var(--muted);margin-bottom:14px;}
+.page-header .brief{font-size:16px;line-height:1.6;color:#444;}
+h2{font-size:18px;font-weight:700;margin:36px 0 16px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+h3{font-size:15px;font-weight:700;margin:28px 0 10px;color:#333;}
+.detail{line-height:1.7;color:#444;margin-bottom:20px;}
+table{width:100%;border-collapse:collapse;margin-bottom:20px;font-size:13.5px;}
+th{background:var(--bg);text-align:left;padding:9px 12px;font-weight:600;border:1px solid var(--border);}
+td{padding:8px 12px;border:1px solid var(--border);vertical-align:top;}
+tr:nth-child(even) td{background:#fafafa;}
+code{font-family:'SFMono-Regular',Consolas,monospace;font-size:12.5px;background:var(--code-bg);padding:1px 5px;border-radius:3px;}
+.fn-card{border:1px solid var(--border);border-radius:8px;margin-bottom:24px;overflow:hidden;}
+.fn-header{padding:14px 18px;background:var(--bg);border-bottom:1px solid var(--border);}
+.fn-sig{font-family:'SFMono-Regular',Consolas,monospace;font-size:13.5px;font-weight:600;color:#333;}
+.fn-brief{font-size:13px;color:var(--muted);margin-top:4px;}
+.fn-body{padding:16px 18px;}
+.fn-body p{line-height:1.7;color:#444;margin-bottom:12px;}
+.var-card{display:flex;gap:12px;align-items:flex-start;padding:10px 14px;border:1px solid var(--border);border-radius:6px;margin-bottom:10px;}
+.var-type{font-family:monospace;font-size:12px;color:var(--muted);white-space:nowrap;padding-top:1px;}
+.var-name{font-family:monospace;font-size:13px;font-weight:700;}
+.var-desc{font-size:13px;color:#555;}
+.alert{padding:12px 16px;border-radius:6px;margin-bottom:14px;font-size:13.5px;line-height:1.6;}
+.alert-warn{background:var(--warn-bg);border-left:4px solid var(--warn-border);color:var(--warn-text);}
+.alert-note{background:var(--note-bg);border-left:4px solid var(--note-border);color:var(--note-text);}
+.alert b{font-weight:700;}
+.index-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:32px;}
+.index-card{border:1px solid var(--border);border-radius:8px;padding:18px 20px;background:var(--surface);transition:box-shadow .15s;}
+.index-card:hover{box-shadow:0 2px 12px rgba(0,0,0,.08);}
+.index-card h3{font-size:14px;margin:0 0 6px;}
+.index-card p{font-size:13px;color:#555;line-height:1.5;}
+.layer-tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;color:#fff;display:inline-block;margin-bottom:10px;}
+/* UI Flowchart */
+.oled{display:inline-block;background:#001a0d;border:1px solid #003322;border-radius:3px;
+font-family:'SFMono-Regular',Consolas,monospace;font-size:11px;color:#00ff9d;
+padding:6px 8px;line-height:1.5;white-space:pre;letter-spacing:.03em;
+box-shadow:0 0 8px rgba(0,255,100,.08) inset;margin:8px 0 4px;width:260px;}
+.oled .dim{color:#006633;}.oled .hi{color:#fff;font-weight:bold;}.oled .warn{color:#ffb300;}
+.screen-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;margin:20px 0;}
+.screen-card{border:1px solid var(--border);border-radius:8px;padding:16px;background:var(--surface);}
+.screen-card h4{font-size:13px;font-weight:700;margin-bottom:4px;color:#333;}
+.screen-card .screen-id{font-size:11px;color:var(--muted);margin-bottom:10px;}
+.action-list{list-style:none;margin-top:10px;}
+.action-list li{font-size:12px;color:#555;padding:3px 0;display:flex;gap:6px;align-items:flex-start;}
+.action-list li::before{content:'›';color:#0d6efd;font-size:14px;line-height:1;}
+.pill{display:inline-block;font-size:10px;font-weight:700;padding:1px 7px;border-radius:99px;border:1px solid;}
+.pill-r{border-color:#0d6efd;color:#0d6efd;background:rgba(13,110,253,.08);}
+.pill-p{border-color:#198754;color:#198754;background:rgba(25,135,84,.08);}
+.pill-l{border-color:#ffc107;color:#997404;background:rgba(255,193,7,.1);}
+.nav-flow{display:flex;align-items:center;gap:8px;margin:16px 0;flex-wrap:wrap;}
+.nav-box{border:1px solid var(--border);border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;background:var(--surface);}
+.nav-arrow{color:var(--muted);font-size:16px;}
+.nav-flow .nav-box.active{background:#e8f0fe;border-color:#0d6efd;color:#0d6efd;}
+@media(max-width:900px){.sidebar{display:none;}.main{margin-left:0;padding:24px 20px;}.index-grid{grid-template-columns:1fr;}}
+</style></head>
+<body><nav class="sidebar">
 <div class="sidebar-logo">Fresadora STM32<span>Documentação da API</span></div>
 <div class="sidebar-section">Visão Geral</div>
 <a class="sidebar-item" href="index.html"><span style="flex:1">Índice</span></a>
+<a class="sidebar-item" href="ui.html"><span style="flex:1">UI Fluxograma</span></a>
 <div class="sidebar-section">Configuração</div>
 <a class="sidebar-item" href="config.html"><span style="flex:1">config.h</span><span class="sidebar-badge" style="background:#6c757d">Config</span></a>
 <div class="sidebar-section">HAL — Hardware</div>
@@ -126,43 +85,39 @@ code { font-family: 'SFMono-Regular', Consolas, monospace; font-size: 12.5px;
 <a class="sidebar-item" href="rpm.html"><span style="flex:1">rpm.h</span><span class="sidebar-badge" style="background:#0d6efd">HAL</span></a>
 <a class="sidebar-item" href="corrente.html"><span style="flex:1">corrente.h</span><span class="sidebar-badge" style="background:#0d6efd">HAL</span></a>
 <a class="sidebar-item" href="controle.html"><span style="flex:1">controle.h</span><span class="sidebar-badge" style="background:#0d6efd">HAL</span></a>
+<a class="sidebar-item" href="monitor.html"><span style="flex:1">monitor.h</span><span class="sidebar-badge" style="background:#0d6efd">HAL</span></a>
+<a class="sidebar-item" href="encoder.html"><span style="flex:1">encoder.h</span><span class="sidebar-badge" style="background:#0d6efd">HAL</span></a>
 <div class="sidebar-section">Control — Algoritmos</div>
 <a class="sidebar-item" href="pids.html"><span style="flex:1">pids.h</span><span class="sidebar-badge" style="background:#198754">Control</span></a>
 <a class="sidebar-item" href="autotune.html"><span style="flex:1">autotune.h</span><span class="sidebar-badge" style="background:#198754">Control</span></a>
 <div class="sidebar-section">App — Aplicação</div>
 <a class="sidebar-item" href="maquina.html"><span style="flex:1">maquina.h</span><span class="sidebar-badge" style="background:#dc3545">App</span></a>
-</nav>
-<main class="main">
-<div class="page-header">
+<a class="sidebar-item" href="grafico.html"><span style="flex:1">grafico.h</span><span class="sidebar-badge" style="background:#dc3545">App</span></a>
+<a class="sidebar-item" href="display.html"><span style="flex:1">display.h</span><span class="sidebar-badge" style="background:#dc3545">App</span></a>
+</nav><main class="main"><div class="page-header">
 <div style="margin-bottom:10px"><span class="layer-tag" style="background:#0d6efd">HAL</span></div>
 <h1>pwm.h</h1>
-<div class="filename">lib/pwm.h" — HAL Layer</div>
-<div class="brief">Saída PWM de potência via TIM1 CH1 (PA8) a 16kHz.</div>
-</div>
+<div class="filename">lib/hal/pwm.h</div>
+<div class="brief">Saída PWM de potência via TIM1 CH1 (PA8) a 16kHz.</div></div>
 <div class="detail">Configura o TIM1 em modo PWM Modo 1 a 16kHz com resolução de 4500 degraus. Compatível com o driver IR2110S e MOSFET IRFP460.</div>
-<h2>Referência</h2>
-<h3>Configuração de Hardware</h3>
-<table><thead><tr><th>Nome</th><th>Tipo</th><th>Valor</th><th>Descrição</th></tr></thead><tbody>
-<tr><td><code>Pino</code></td><td><code></code></td><td><code>PA8</code></td><td>TIM1 CH1, função alternativa push-pull 50MHz</td></tr>
-<tr><td><code>Frequência</code></td><td><code></code></td><td><code>16.000 Hz</code></td><td>PSC=0, ARR=4499 → 72MHz / 4500</td></tr>
-<tr><td><code>Resolução</code></td><td><code></code></td><td><code>4500 degraus</code></td><td>0 a MAX_PWM (4499)</td></tr>
-</tbody></table>
 
+<h3>Configuração de Hardware</h3>
+<table><thead><tr><th>Nome</th><th>Tipo/Valor</th><th>Descrição</th></tr></thead><tbody>
+<tr><td><code>Frequência</code></td><td><code>16.000 Hz</code></td><td>PSC=0, ARR=4499 → 72MHz/4500</td></tr>
+<tr><td><code>Resolução</code></td><td><code>4500 degraus</code></td><td>0 a MAX_PWM (4499)</td></tr>
+</tbody></table>
 <h2>Funções</h2>
-<div class="fn-card">
-<div class="fn-header"><div class="fn-sig"><code>void setupHardwarePWM()</code></div><div class="fn-brief">Inicializa o TIM1 para geração de PWM a 16kHz em PA8.</div></div>
-<div class="fn-body">
-<p>Configura clock, GPIO, modo PWM Modo 1, preload e Main Output Enable (MOE). Inicia com duty cycle zero (motor desligado). Deve ser chamada antes de qualquer chamada a aplicarPWM().</p>
+<div class="fn-card"><div class="fn-header">
+<div class="fn-sig"><code>void setupHardwarePWM()</code></div>
+<div class="fn-brief">Inicializa o TIM1 para geração de PWM a 16kHz em PA8.</div></div>
+<div class="fn-body"><p>Configura clock, GPIO, modo PWM Modo 1, preload e Main Output Enable (MOE). Inicia com duty cycle zero.</p>
 <div class="alert alert-warn"><b>⚠ Atenção:</b> TIM1 é um Advanced Timer. O bit MOE no registrador BDTR deve ser setado, caso contrário PA8 não gera sinal — falha silenciosa comum na migração do Arduino.</div>
 </div></div>
-<div class="fn-card">
-<div class="fn-header"><div class="fn-sig"><code>void aplicarPWM(float valor)</code></div><div class="fn-brief">Aplica um valor de duty cycle ao TIM1 CCR1.</div></div>
-<div class="fn-body">
-<p>O valor é limitado automaticamente ao intervalo [0, MAX_PWM] antes de ser escrito no registrador de comparação.</p>
+<div class="fn-card"><div class="fn-header">
+<div class="fn-sig"><code>void aplicarPWM(float valor)</code></div>
+<div class="fn-brief">Aplica um valor de duty cycle ao TIM1 CCR1.</div></div>
+<div class="fn-body"><p>O valor é limitado automaticamente ao intervalo [0, MAX_PWM].</p>
 <table><thead><tr><th>Parâmetro</th><th>Descrição</th></tr></thead><tbody>
 <tr><td><code>valor</code></td><td>Duty cycle desejado (0.0 = desligado, MAX_PWM = 100%).</td></tr>
 </tbody></table>
-</div></div>
-</main>
-</body>
-</html>
+</div></div></main></body></html>

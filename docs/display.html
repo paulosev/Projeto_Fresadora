@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Índice — Fresadora STM32</title>
+<title>display.h — Fresadora STM32</title>
 <style>
 :root{--bg:#f8f9fa;--surface:#fff;--border:#dee2e6;--text:#212529;--muted:#6c757d;
 --warn-bg:#fff3cd;--warn-border:#ffc107;--warn-text:#664d03;
@@ -76,7 +76,7 @@ box-shadow:0 0 8px rgba(0,255,100,.08) inset;margin:8px 0 4px;width:260px;}
 <body><nav class="sidebar">
 <div class="sidebar-logo">Fresadora STM32<span>Documentação da API</span></div>
 <div class="sidebar-section">Visão Geral</div>
-<a class="sidebar-item active" href="index.html"><span style="flex:1">Índice</span></a>
+<a class="sidebar-item" href="index.html"><span style="flex:1">Índice</span></a>
 <a class="sidebar-item" href="ui.html"><span style="flex:1">UI Fluxograma</span></a>
 <div class="sidebar-section">Configuração</div>
 <a class="sidebar-item" href="config.html"><span style="flex:1">config.h</span><span class="sidebar-badge" style="background:#6c757d">Config</span></a>
@@ -93,89 +93,47 @@ box-shadow:0 0 8px rgba(0,255,100,.08) inset;margin:8px 0 4px;width:260px;}
 <div class="sidebar-section">App — Aplicação</div>
 <a class="sidebar-item" href="maquina.html"><span style="flex:1">maquina.h</span><span class="sidebar-badge" style="background:#dc3545">App</span></a>
 <a class="sidebar-item" href="grafico.html"><span style="flex:1">grafico.h</span><span class="sidebar-badge" style="background:#dc3545">App</span></a>
-<a class="sidebar-item" href="display.html"><span style="flex:1">display.h</span><span class="sidebar-badge" style="background:#dc3545">App</span></a>
-</nav><main class="main"><div class="page-header"><h1>Fresadora STM32 — Documentação da API</h1>
-<div class="brief">Sistema de controle de motor universal 1800W em DC pulsado. STM32F103C8T6 (Blue Pill) com PlatformIO.</div></div>
-<h2>Arquitetura</h2>
-<table><thead><tr><th>Camada</th><th>Arquivos</th><th>Responsabilidade</th></tr></thead><tbody>
-<tr><td><span class="sidebar-badge" style="background:#6c757d">Config</span></td>
-<td><a href="config.html"><code>config.h</code></a></td>
-<td>Constantes, pinos, limites, ganhos PID e parâmetros de UI centralizados</td></tr>
-<tr><td><span class="sidebar-badge" style="background:#0d6efd">HAL</span></td>
-<td><a href="pwm.html"><code>pwm</code></a> · <a href="rpm.html"><code>rpm</code></a> · <a href="corrente.html"><code>corrente</code></a> · <a href="controle.html"><code>controle</code></a> · <a href="monitor.html"><code>monitor</code></a> · <a href="encoder.html"><code>encoder</code></a></td>
-<td>Acesso direto ao hardware. Única camada que toca registradores e pinos.</td></tr>
-<tr><td><span class="sidebar-badge" style="background:#198754">Control</span></td>
-<td><a href="pids.html"><code>pids</code></a> · <a href="autotune.html"><code>autotune</code></a></td>
-<td>Algoritmos de controle puros. Não conhece pinos nem registradores.</td></tr>
-<tr><td><span class="sidebar-badge" style="background:#dc3545">App</span></td>
-<td><a href="maquina.html"><code>maquina</code></a> · <a href="grafico.html"><code>grafico</code></a> · <a href="display.html"><code>display</code></a></td>
-<td>Lógica de aplicação. Orquestra HAL e Control. Interface com o usuário.</td></tr>
+<a class="sidebar-item active" href="display.html"><span style="flex:1">display.h</span><span class="sidebar-badge" style="background:#dc3545">App</span></a>
+</nav><main class="main"><div class="page-header">
+<div style="margin-bottom:10px"><span class="layer-tag" style="background:#dc3545">App</span></div>
+<h1>display.h</h1>
+<div class="filename">lib/app/display.h</div>
+<div class="brief">Interface gráfica: SSD1306 0.96&quot; + Encoder KY-040.</div></div>
+<div class="detail">Máquina de estados com 3 modos: UI_TELAS (navegação), UI_MENU (configuração) e UI_EDICAO (edição de valor). 5 telas de monitoramento + menu com scroll. Redesenho limitado a 10Hz (DISPLAY_UPDATE_MS). Toda a lógica roda no loop() — nunca na ISR do TIM3.</div>
+
+<h3>Telas</h3>
+<table><thead><tr><th>Nome</th><th>Tipo/Valor</th><th>Descrição</th></tr></thead><tbody>
+<tr><td><code>Tela 0</code></td><td><code>Principal</code></td><td>RPM + setpoint + barra PWM + estado do motor</td></tr>
+<tr><td><code>Tela 1</code></td><td><code>Monitor Motor</code></td><td>Tensão motor + corrente + potência</td></tr>
+<tr><td><code>Tela 2</code></td><td><code>Monitor Fonte</code></td><td>Tensão fonte + status ligada/desligada</td></tr>
+<tr><td><code>Tela 3</code></td><td><code>Gráfico PID</code></td><td>RPM vs Setpoint — 128 amostras (~10s), pausa com botão</td></tr>
+<tr><td><code>Tela 4</code></td><td><code>Diagnóstico</code></td><td>PWM bruto + setpoint de corrente interno</td></tr>
 </tbody></table>
-<h2>Fluxo de Execução</h2>
-<table><thead><tr><th>Contexto</th><th>Frequência</th><th>Tarefas</th></tr></thead><tbody>
-<tr><td><code>TIM3 ISR</code></td><td><b>2kHz</b> — prioridade 0</td><td>lerCorrente() → calcularRPM() → processarCascata() → verificações de segurança</td></tr>
-<tr><td><code>Hall ISR (PA0)</code></td><td>Por pulso — prioridade 1</td><td>Registra período entre pulsos do sensor Hall</td></tr>
-<tr><td><code>loop()</code></td><td>~95% do CPU livre</td><td>executarSoftStart() · atualizarMonitor() · atualizarGrafico() · atualizarDisplay()</td></tr>
+
+<h3>Menu de Configuração</h3>
+<table><thead><tr><th>Nome</th><th>Tipo/Valor</th><th>Descrição</th></tr></thead><tbody>
+<tr><td><code>Setpoint RPM</code></td><td><code>1000–10000</code></td><td>Passo 50 RPM</td></tr>
+<tr><td><code>Kp Corrente</code></td><td><code>0–200</code></td><td>Passo 0.5</td></tr>
+<tr><td><code>Ki Corrente</code></td><td><code>0–500</code></td><td>Passo 1.0</td></tr>
+<tr><td><code>Kp RPM</code></td><td><code>0–20</code></td><td>Passo 0.05</td></tr>
+<tr><td><code>Ki RPM</code></td><td><code>0–10</code></td><td>Passo 0.05</td></tr>
+<tr><td><code>Soft-Start</code></td><td><code>ON/OFF</code></td><td>Liga/desliga a rampa de partida</td></tr>
+<tr><td><code>Autotune</code></td><td><code>—</code></td><td>Inicia executarAutotuneCorrente()</td></tr>
 </tbody></table>
-<h2>Arquivos</h2><div class="index-grid">
-<a class="index-card" href="config.html">
-<span class="layer-tag" style="background:#6c757d">Configuração</span>
-<h3>config.h</h3>
-<p>Configuração central do projeto — constantes, pinos e limites.</p>
-<p style="margin-top:8px;font-size:12px;color:#888">Constantes e defines</p></a>
-<a class="index-card" href="pwm.html">
-<span class="layer-tag" style="background:#0d6efd">HAL</span>
-<h3>pwm.h</h3>
-<p>Saída PWM de potência via TIM1 CH1 (PA8) a 16kHz.</p>
-<p style="margin-top:8px;font-size:12px;color:#888">2 funçãoões</p></a>
-<a class="index-card" href="rpm.html">
-<span class="layer-tag" style="background:#0d6efd">HAL</span>
-<h3>rpm.h</h3>
-<p>Medição de RPM por período entre pulsos do sensor Hall (PA0).</p>
-<p style="margin-top:8px;font-size:12px;color:#888">2 funçãoões</p></a>
-<a class="index-card" href="corrente.html">
-<span class="layer-tag" style="background:#0d6efd">HAL</span>
-<h3>corrente.h</h3>
-<p>Leitura de corrente via sensor ACS712-30A em PA1.</p>
-<p style="margin-top:8px;font-size:12px;color:#888">1 função</p></a>
-<a class="index-card" href="controle.html">
-<span class="layer-tag" style="background:#0d6efd">HAL</span>
-<h3>controle.h</h3>
-<p>Loop de controle determinístico via TIM3 @ 2kHz.</p>
-<p style="margin-top:8px;font-size:12px;color:#888">3 funçãoões</p></a>
-<a class="index-card" href="monitor.html">
-<span class="layer-tag" style="background:#0d6efd">HAL</span>
-<h3>monitor.h</h3>
-<p>Monitoramento de tensão da fonte, tensão do motor e potência.</p>
-<p style="margin-top:8px;font-size:12px;color:#888">1 função · 4 variáveleis</p></a>
-<a class="index-card" href="encoder.html">
-<span class="layer-tag" style="background:#0d6efd">HAL</span>
-<h3>encoder.h</h3>
-<p>Leitura do encoder rotativo KY-040 (CLK/DT/SW) via polling.</p>
-<p style="margin-top:8px;font-size:12px;color:#888">2 funçãoões · 3 variáveleis</p></a>
-<a class="index-card" href="pids.html">
-<span class="layer-tag" style="background:#198754">Control</span>
-<h3>pids.h</h3>
-<p>PIDs em cascata: malha de velocidade (RPM) e malha de corrente.</p>
-<p style="margin-top:8px;font-size:12px;color:#888">4 funçãoões · 7 variáveleis</p></a>
-<a class="index-card" href="autotune.html">
-<span class="layer-tag" style="background:#198754">Control</span>
-<h3>autotune.h</h3>
-<p>Sintonia automática da malha de corrente via sTune (Ziegler-Nichols).</p>
-<p style="margin-top:8px;font-size:12px;color:#888">1 função</p></a>
-<a class="index-card" href="maquina.html">
-<span class="layer-tag" style="background:#dc3545">App</span>
-<h3>maquina.h</h3>
-<p>Lógica de alto nível: soft-start e parada de emergência.</p>
-<p style="margin-top:8px;font-size:12px;color:#888">2 funçãoões</p></a>
-<a class="index-card" href="grafico.html">
-<span class="layer-tag" style="background:#dc3545">App</span>
-<h3>grafico.h</h3>
-<p>Buffer circular para o gráfico de RPM vs Setpoint (~10s).</p>
-<p style="margin-top:8px;font-size:12px;color:#888">2 funçãoões · 5 variáveleis</p></a>
-<a class="index-card" href="display.html">
-<span class="layer-tag" style="background:#dc3545">App</span>
-<h3>display.h</h3>
-<p>Interface gráfica: SSD1306 0.96&quot; + Encoder KY-040.</p>
-<p style="margin-top:8px;font-size:12px;color:#888">2 funçãoões</p></a>
-</div></main></body></html>
+
+<h3>Bibliotecas</h3>
+<table><thead><tr><th>Nome</th><th>Tipo/Valor</th><th>Descrição</th></tr></thead><tbody>
+<tr><td><code>Adafruit SSD1306</code></td><td><code>^2.5.7</code></td><td>Driver do display</td></tr>
+<tr><td><code>Adafruit GFX Library</code></td><td><code>^1.11.9</code></td><td>Primitivas gráficas</td></tr>
+</tbody></table>
+<h2>Funções</h2>
+<div class="fn-card"><div class="fn-header">
+<div class="fn-sig"><code>void setupDisplay()</code></div>
+<div class="fn-brief">Inicializa o SSD1306 via I²C e exibe a tela de boot.</div></div>
+<div class="fn-body"><p>Deve ser chamada no setup() após Serial.begin(). Se o display não for encontrado, o sistema continua sem display.</p>
+</div></div>
+<div class="fn-card"><div class="fn-header">
+<div class="fn-sig"><code>void atualizarDisplay()</code></div>
+<div class="fn-brief">Processa o encoder e redesenha o display.</div></div>
+<div class="fn-body"><p>Chama lerEncoder() internamente, processa eventos de acordo com o estado atual (UI_TELAS, UI_MENU, UI_EDICAO) e redesenha. Redesenho limitado a DISPLAY_UPDATE_MS internamente.</p>
+</div></div></main></body></html>
